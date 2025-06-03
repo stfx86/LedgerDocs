@@ -1,0 +1,3 @@
+[submodule "document-ether-market"]
+	path = document-ether-market
+	url = git@github.com:stfx86/document-ether-market.git
