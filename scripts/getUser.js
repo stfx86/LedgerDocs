@@ -7,12 +7,7 @@ async function main() {
     const LedgerDoc = await ethers.getContractAt("LedgerDoc", contractAddress);
     const user = await LedgerDoc.getUserByAddress(userAddress);
 
-    console.log({
-        id: user.id.toString(),
-        wallet: user.wallet,
-        name: user.name,
-        profileCid: user.profileCid,
-    });
+    console.log(user);
 }
 
 main().catch((error) => {

@@ -23,7 +23,9 @@ contract LedgerDoc {
         uint256 id;
         address wallet;
         string name;
-        string profileCid;
+        string profileCid;       // General profile metadata (e.g., JSON page)
+        string profileImageCid;  // Specific CID for profile image
+        uint256 joinedAt;        // Timestamp of user registration
     }
 
     uint256 public nextUserId = 1;
@@ -66,7 +68,12 @@ contract LedgerDoc {
     }
 
     // Admin: register a new user
-    function registerUser(address wallet, string calldata name, string calldata profileCid) external onlyOwner {
+    function registerUser(
+        address wallet,
+        string calldata name,
+        string calldata profileCid,
+        string calldata profileImageCid
+    ) external onlyOwner {
         require(addressToUserId[wallet] == 0, "User already registered");
         uint256 userId = nextUserId++;
 
@@ -74,7 +81,9 @@ contract LedgerDoc {
             id: userId,
             wallet: wallet,
             name: name,
-            profileCid: profileCid
+            profileCid: profileCid,
+            profileImageCid: profileImageCid,
+            joinedAt: block.timestamp
         });
 
         addressToUserId[wallet] = userId;
@@ -132,5 +141,10 @@ contract LedgerDoc {
     // View a document
     function getDocument(uint256 documentId) external view returns (Document memory) {
         return documents[documentId];
+    }
+
+    // Test function (for debug)
+    function tst() public pure returns (uint256) {
+        return 2222;
     }
 }
