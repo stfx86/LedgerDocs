@@ -17,15 +17,16 @@ contract LedgerDoc {
         uint256 ratingCount;
         uint256 uploaderId;
         bool previewAvailable;
+        uint256 uploadTime; // Added field
     }
 
     struct User {
         uint256 id;
         address wallet;
         string name;
-        string profileCid;       // General profile metadata (e.g., JSON page)
-        string profileImageCid;  // Specific CID for profile image
-        uint256 joinedAt;        // Timestamp of user registration
+        string profileCid;
+        string profileImageCid;
+        uint256 joinedAt;
     }
 
     uint256 public nextUserId = 1;
@@ -119,7 +120,8 @@ contract LedgerDoc {
             totalRating: 0,
             ratingCount: 0,
             uploaderId: uploaderId,
-            previewAvailable: previewAvailable
+            previewAvailable: previewAvailable,
+            uploadTime: block.timestamp // Set upload time
         });
 
         emit DocumentUploaded(docId, uploaderId);
