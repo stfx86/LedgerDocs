@@ -1,0 +1,43 @@
+struct Document {
+    uint256 id;
+    string metadataCid;         // Metadata JSON (public)
+    string encryptedCid;        // CID of the *encrypted* full document
+    string descriptionCid;      // IPFS CID for description text
+    string previewCid;          // Optional CID for document preview
+    string thumbnailCid;        // Small image preview
+    string title;
+    string category;
+    uint256 price;              // In wei
+    uint256 downloads;
+    uint256 totalRating;        // Sum of all ratings
+    uint256 ratingCount;        // Number of ratings
+    uint256 uploaderId;         // ID linked to off-chain or on-chain profile
+    bool previewAvailable;
+}
+  
+
+//////////////////////////////////////////
+
+
+struct Purchase {
+    uint256 documentId;
+    uint256 sellerId;
+    uint256 timestamp;  // optional
+}
+
+struct Sale {
+    uint256 documentId;
+    uint256 buyerId;
+    uint256 timestamp;  // optional
+}
+
+struct User {
+    uint256 id;
+    address wallet;
+    string name;
+    string profileCid;
+
+    Purchase[] purchases;  // documents this user bought, with seller info
+    Sale[] sales;          // documents this user sold, with buyer info
+}
+
