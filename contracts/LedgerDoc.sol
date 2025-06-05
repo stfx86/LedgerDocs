@@ -1,24 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 contract LedgerDoc {
-    struct Document {
-        uint256 id;
-        string metadataCid;
-        string encryptedCid;
-        string descriptionCid;
-        string previewCid;
-        string thumbnailCid;
-        string title;
-        string category;
-        uint256 price;
-        uint256 downloads;
-        uint256 totalRating;
-        uint256 ratingCount;
-        uint256 uploaderId;
-        bool previewAvailable;
-        uint256 uploadTime; // Added field
-    }
+    enum UserStatus { Active, Suspended }
+    enum DocumentStatus { Active, Removed }
 
     struct User {
         uint256 id;
@@ -27,125 +12,224 @@ contract LedgerDoc {
         string profileCid;
         string profileImageCid;
         uint256 joinedAt;
+        UserStatus status;
+    }
+
+    struct Document {
+        uint256 id;
+        string metadataCid;
+        string encryptedCid;
+        string descriptionCid;
+        string previewCid;
+        string thumbnailCid;
+        string title;
+        string[] categories;
+        uint256 price;
+        uint256 downloads;
+        uint256 totalRating;
+        uint256 ratingCount;
+        uint256 uploaderId;
+        uint256 uploadTime;
+        DocumentStatus status;
+    }
+
+    struct Purchase {
+        uint256 documentId;
+        uint256 timestamp;
+    }
+
+    struct Sale {
+        uint256 documentId;
+        uint256 timestamp;
+    }
+
+    struct UserInput {
+        address wallet;
+        string name;
+        string profileCid;
+        string profileImageCid;
+    }
+
+    struct DocumentInput {
+        string metadataCid;
+        string encryptedCid;
+        string descriptionCid;
+        string previewCid;
+        string thumbnailCid;
+        string title;
+        string[] categories;
+        uint256 price;
+        address uploaderAddress;
     }
 
     uint256 public nextUserId = 1;
     uint256 public nextDocumentId = 1;
 
+    address public owner;
+
     mapping(address => uint256) public addressToUserId;
     mapping(uint256 => User) public users;
     mapping(uint256 => Document) public documents;
-    mapping(address => bool) public isAuthorizedUploader;
+    mapping(address => bool) public isAuthorized;
 
-    address public owner;
+    mapping(uint256 => Purchase[]) public userPurchases;
+    mapping(uint256 => Sale[]) public userSales;
 
-    event UserRegistered(uint256 indexed userId, address wallet);
-    event DocumentUploaded(uint256 indexed documentId, uint256 indexed uploaderId);
+    event UserRegistered(uint256 indexed userId, address indexed wallet, string  name, string profileCid, string profileImageCid, uint256 joinedAt);
+    event DocumentUploaded(
+        uint256 indexed documentId,
+        uint256 indexed uploaderId,
+        string title,
+        string[] categories,
+        uint256 indexed  price,
+        uint256 uploadTime,
+        string metadataCid,
+        string encryptedCid,
+        string descriptionCid,
+        string previewCid,
+        string thumbnailCid,
+        string uploaderName
+    );
+    event DocumentCategoryTagged(uint256 indexed documentId, string category);
     event AuthorizationUpdated(address indexed uploader, bool status);
+    event DocumentRemoved(uint256 indexed documentId);
+    event UserStatusUpdated(uint256 indexed userId, UserStatus status);
+    event DocumentPurchased(uint256 indexed documentId, uint256 indexed buyerId, uint256 timestamp);
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Not the owner");
+        require(msg.sender == owner, "Not owner");
         _;
     }
 
     modifier onlyAuthorized() {
-        require(isAuthorizedUploader[msg.sender], "Not authorized to upload");
+        require(isAuthorized[msg.sender] || msg.sender == owner, "Not authorized");
         _;
     }
 
-    modifier onlyRegisteredUser() {
-        require(addressToUserId[msg.sender] != 0, "Not a registered user");
+    modifier onlyActiveUser(address userAddr) {
+        uint256 uid = addressToUserId[userAddr];
+        require(uid != 0, "Not registered");
+        require(users[uid].status == UserStatus.Active, "User suspended");
         _;
     }
 
     constructor() {
         owner = msg.sender;
+        isAuthorized[msg.sender] = true;
     }
 
-    // Admin: authorize or revoke uploader rights
-    function setAuthorizedUploader(address uploader, bool status) external onlyOwner {
-        isAuthorizedUploader[uploader] = status;
+    function setAuthorized(address uploader, bool status) external onlyOwner {
+        isAuthorized[uploader] = status;
         emit AuthorizationUpdated(uploader, status);
     }
 
-    // Admin: register a new user
-    function registerUser(
-        address wallet,
-        string calldata name,
-        string calldata profileCid,
-        string calldata profileImageCid
-    ) external onlyOwner {
-        require(addressToUserId[wallet] == 0, "User already registered");
-        uint256 userId = nextUserId++;
+    function registerUser(UserInput calldata input) external onlyAuthorized {
+        require(addressToUserId[input.wallet] == 0, "User exists");
 
-        users[userId] = User({
-            id: userId,
-            wallet: wallet,
-            name: name,
-            profileCid: profileCid,
-            profileImageCid: profileImageCid,
-            joinedAt: block.timestamp
+        uint256 id = nextUserId++;
+        users[id] = User({
+            id: id,
+            wallet: input.wallet,
+            name: input.name,
+            profileCid: input.profileCid,
+            profileImageCid: input.profileImageCid,
+            joinedAt: block.timestamp,
+            status: UserStatus.Active
         });
 
-        addressToUserId[wallet] = userId;
-        emit UserRegistered(userId, wallet);
+        addressToUserId[input.wallet] = id;
+
+        emit UserRegistered(id, input.wallet, input.name, input.profileCid, input.profileImageCid, block.timestamp);
     }
 
-    // Authorized + registered users can upload documents
-    function uploadDocument(
-        string calldata metadataCid,
-        string calldata encryptedCid,
-        string calldata descriptionCid,
-        string calldata previewCid,
-        string calldata thumbnailCid,
-        string calldata title,
-        string calldata category,
-        uint256 price,
-        bool previewAvailable
-    ) external onlyAuthorized onlyRegisteredUser {
+    function setUserStatus(uint256 userId, UserStatus status) external onlyAuthorized {
+        require(users[userId].id != 0, "Invalid user");
+        users[userId].status = status;
+        emit UserStatusUpdated(userId, status);
+    }
+
+    function uploadDocument(DocumentInput calldata input) external onlyAuthorized onlyActiveUser(input.uploaderAddress) {
+//         require(users[input.uploaderId].id != 0, "Invalid uploader");
+        uint256 uploaderId = addressToUserId[input.uploaderAddress];
         uint256 docId = nextDocumentId++;
-        uint256 uploaderId = addressToUserId[msg.sender];
 
-        documents[docId] = Document({
-            id: docId,
-            metadataCid: metadataCid,
-            encryptedCid: encryptedCid,
-            descriptionCid: descriptionCid,
-            previewCid: previewCid,
-            thumbnailCid: thumbnailCid,
-            title: title,
-            category: category,
-            price: price,
-            downloads: 0,
-            totalRating: 0,
-            ratingCount: 0,
-            uploaderId: uploaderId,
-            previewAvailable: previewAvailable,
-            uploadTime: block.timestamp // Set upload time
-        });
+        Document storage doc = documents[docId];
+        doc.id = docId;
+        doc.metadataCid = input.metadataCid;
+        doc.encryptedCid = input.encryptedCid;
+        doc.descriptionCid = input.descriptionCid;
+        doc.previewCid = input.previewCid;
+        doc.thumbnailCid = input.thumbnailCid;
+        doc.title = input.title;
+        doc.categories = input.categories;
+        doc.price = input.price;
+        doc.downloads = 0;
+        doc.totalRating = 0;
+        doc.ratingCount = 0;
+        doc.uploaderId = uploaderId;
+        doc.uploadTime = block.timestamp;
+        doc.status = DocumentStatus.Active;
 
-        emit DocumentUploaded(docId, uploaderId);
+        userSales[uploaderId].push(Sale({ documentId: docId, timestamp: block.timestamp }));
+
+        emit DocumentUploaded(docId, uploaderId, input.title, input.categories, input.price, doc.uploadTime, input.metadataCid, input.encryptedCid, input.descriptionCid, input.previewCid, input.thumbnailCid, users[uploaderId].name);
+
+        for (uint i = 0; i < input.categories.length; i++) {
+            emit DocumentCategoryTagged(docId, input.categories[i]);
+        }
     }
 
-    // View a user by ID
+    function removeDocument(uint256 docId) external {
+        Document storage doc = documents[docId];
+        require(doc.id != 0, "Not found");
+        uint256 uploaderId = doc.uploaderId;
+        require(msg.sender == users[uploaderId].wallet || isAuthorized[msg.sender], "Unauthorized");
+        doc.status = DocumentStatus.Removed;
+        emit DocumentRemoved(docId);
+    }
+
+    function purchaseDocument(uint256 docId) external payable onlyActiveUser(msg.sender) {
+        Document storage doc = documents[docId];
+        require(doc.status == DocumentStatus.Active, "Document inactive");
+        require(msg.value >= doc.price, "Insufficient payment");
+
+        uint256 buyerId = addressToUserId[msg.sender];
+        uint256 uploaderId = doc.uploaderId;
+
+        userPurchases[buyerId].push(Purchase({ documentId: docId, timestamp: block.timestamp }));
+        userSales[uploaderId].push(Sale({ documentId: docId, timestamp: block.timestamp }));
+
+        uint256 ownerCut = (msg.value * 10) / 100;
+        uint256 sellerAmount = msg.value - ownerCut;
+
+        payable(users[uploaderId].wallet).transfer(sellerAmount);
+
+        emit DocumentPurchased(docId, buyerId, block.timestamp);
+    }
+
     function getUserById(uint256 userId) external view returns (User memory) {
-        require(userId != 0 && userId < nextUserId, "User does not exist");
+        require(userId != 0 && userId < nextUserId, "User not found");
         return users[userId];
     }
 
-    // View a user by wallet address
     function getUserByAddress(address wallet) external view returns (User memory) {
         uint256 id = addressToUserId[wallet];
         require(id != 0, "User not found");
         return users[id];
     }
 
-    // View a document
-    function getDocument(uint256 documentId) external view returns (Document memory) {
-        return documents[documentId];
+    function getDocument(uint256 docId) external view returns (Document memory) {
+        return documents[docId];
     }
 
-    // Test function (for debug)
+    function getUserPurchases(uint256 userId) external view returns (Purchase[] memory) {
+        return userPurchases[userId];
+    }
+
+    function getUserSales(uint256 userId) external view returns (Sale[] memory) {
+        return userSales[userId];
+    }
+
     function tst() public pure returns (uint256) {
         return 2222;
     }

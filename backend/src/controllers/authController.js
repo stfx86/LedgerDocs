@@ -49,13 +49,20 @@ exports.login = async (req, res) => {
       if (error.code === 'BAD_DATA' || error.message.includes('User not found')) {
         console.log('User not found, registering...');
 
+
         // Step 3: Register user
         try {
+
+          const registrationData = {
+            wallet: address,
+            name: 'Default_Name (change me)',
+            profileCid: '', // Replace with actual CID or empty string
+            profileImageCid: '' // Replace with actual CID or empty string
+          };
+
+
           const tx = await contractWithSigner.registerUser(
-            address,
-            'Default_Name (change me)', // Replace with user-provided or default data
-            '', // Replace with actual CID or empty string
-            '' // Replace with actual CID or empty string
+            registrationData
           );
           console.log('Registration transaction:', tx.hash);
           await tx.wait();
@@ -64,7 +71,9 @@ exports.login = async (req, res) => {
           // Fetch user data after registration
           user = await contract.getUserByAddress(address);
           console.log('User after registration:', user);
-        } catch (regError) {
+        }
+
+          catch (regError) {
           console.error('Registration failed:', regError);
           return res.status(500).json({ error: 'Failed to register user' });
         }
