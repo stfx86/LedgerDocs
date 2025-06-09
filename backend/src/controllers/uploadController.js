@@ -81,11 +81,12 @@ exports.handleUpload = async(req, res) => {
         console.log("🌫️ Generating preview ");
         const { jsonCID  } = await makePreview({
             inputPDFPath: pdfFile.path,
-            patchWidth: 100,
-            patchHeight: 80,
+            patchWidth: null,
+            patchHeight: 25,
             blurPercentage: parseInt(blurLevel) / 100,
             blurStrength: 15,
         });
+        console.log("parseInt(blurLevel) / 100,::",parseInt(blurLevel) / 100);
         previewCid = jsonCID
 
 

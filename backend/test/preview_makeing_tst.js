@@ -4,14 +4,14 @@ const path = require("path");
 const generatePreview = async () => {
     try {
         const config = {
-            inputPDFPath: path.join(__dirname, "base de données.pdf"),
+            inputPDFPath: path.join(__dirname, "plaining"),
             outputJSONPath: path.join(__dirname, "output/ipfs_cids.json"),
             tempDir: path.join(__dirname, "temp_blur"),
             patchWidth: null, // Use full image width
-            patchHeight: 80,
-            blurPercentage: 0.6,
+            patchHeight: 25,//80
+            blurPercentage: 0.3,
             blurStrength: 20,
-            imageResolution: 100, // Lowered for performance
+            imageResolution: 300,//100 // Lowered for performance
         };
 
         console.log("Starting preview generation with config:", config);
