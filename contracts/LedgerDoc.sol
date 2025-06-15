@@ -73,7 +73,7 @@ contract LedgerDoc {
     mapping(address => bool) public isAuthorized;
 
     mapping(uint256 => Purchase[]) public userPurchases;
-    mapping(uint256 => Sale[]) public userSales;
+    mapping(uint256 => Sale[]) public userSales;//sales (current uploaded document that ment to get baugt  from the buyer )not sales history!!
 
     event UserRegistered(uint256 indexed userId, address indexed wallet, string  name, string profileCid, string profileImageCid, uint256 joinedAt);
     event DocumentUploaded(
@@ -148,7 +148,8 @@ contract LedgerDoc {
         emit UserStatusUpdated(userId, status);
     }
 
-    function uploadDocument(DocumentInput calldata input) external onlyAuthorized onlyActiveUser(input.uploaderAddress) {
+    function uploadDocument(DocumentInput calldata input) external onlyAuthorized onlyActiveUser(input.uploaderAddress)
+             returns (uint256)  {
 //         require(users[input.uploaderId].id != 0, "Invalid uploader");
         uint256 uploaderId = addressToUserId[input.uploaderAddress];
         uint256 docId = nextDocumentId++;
@@ -177,6 +178,8 @@ contract LedgerDoc {
         for (uint i = 0; i < input.categories.length; i++) {
             emit DocumentCategoryTagged(docId, input.categories[i]);
         }
+        return docId;
+
     }
 
     function removeDocument(uint256 docId) external {
@@ -197,12 +200,13 @@ contract LedgerDoc {
         uint256 uploaderId = doc.uploaderId;
 
         userPurchases[buyerId].push(Purchase({ documentId: docId, timestamp: block.timestamp }));
-        userSales[uploaderId].push(Sale({ documentId: docId, timestamp: block.timestamp }));
+//         userSales[uploaderId].push(Sale({ documentId: docId, timestamp: block.timestamp }));
 
         uint256 ownerCut = (msg.value * 10) / 100;
         uint256 sellerAmount = msg.value - ownerCut;
 
         payable(users[uploaderId].wallet).transfer(sellerAmount);
+        doc.downloads += 1;
 
         emit DocumentPurchased(docId, buyerId, block.timestamp);
     }

@@ -3,6 +3,8 @@ const fs = require("fs");
 const { makePreview } = require("../utils/makePreview");
 const { encryptAndUploadPDF } = require("../utils/encrypt-upload"); // takes a buffer, returns { cid, key, iv }
 const { uploadJSONToIPFS, uploadFileToIPFS } = require("../utils/ipfs");
+const {saveAESKey }=  require("../utils/saveAESKey");
+// const {saveAESKey }=  require("../utils/saveAESKey");
 const { ethers } = require("ethers");
 const { abi } = require("../../../artifacts/contracts/LedgerDoc.sol/LedgerDoc.json");
  
@@ -72,6 +74,7 @@ exports.handleUpload = async(req, res) => {
         console.log("🔐 Starting PDF encryption and upload...");
         console.log("pdfBuffer_before_ecryptionAndUpload::>>", pdfBuffer);
         const { cid: encryptedCid, key, iv } = await encryptAndUploadPDF({inputPDF:pdfBuffer});
+
         console.log("✅ PDF encrypted and uploaded to IPFS");
         console.log("🔑 Encryption Key:", key.toString("hex")); // TODO: secure later
         console.log("🔐 Encrypted CID:", encryptedCid);
@@ -148,6 +151,32 @@ exports.handleUpload = async(req, res) => {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, wallet);
         console.log("🔗 Connected to contract:", CONTRACT_ADDRESS);
 
+        // static call
+
+
+        // const predictedDocId = await contract.callStatic.uploadDocument({
+        //     metadataCid,
+        //     encryptedCid,
+        //     descriptionCid,
+        //     previewCid,
+        //     thumbnailCid,
+        //     title,
+        //     categories,
+        //     price: ethers.parseEther(price),
+        //     uploaderAddress: userWalletAddress
+        // });
+        // console.log("🆔 Predicted Document ID (from callStatic):", predictedDocId);
+        //
+        //
+        //
+
+
+
+
+
+
+
+        //
         console.log("📤 Uploading document to smart contract...");
         const tx = await contract.uploadDocument({
             metadataCid,
@@ -160,10 +189,47 @@ exports.handleUpload = async(req, res) => {
             price: ethers.parseEther(price),
             uploaderAddress:userWalletAddress
         });
-        console.log("📨 Transaction sent:", tx.hash);
+        // console.log("📨 Transaction sent:", tx.hash);
 
-        await tx.wait();
-        console.log("✅ Transaction confirmed");
+        // const receipt = await tx.wait();
+        // console.log("✅ Transaction confirmed");
+
+        // console.log(">>receipt::",receipt);
+/*
+        const docId = receipt.events.find(e => e.event === "DocumentUploaded").args.documentId;
+        console.log(">>retrved DocID ::",docId);*/
+
+
+
+console.log("📤 Transaction sent:", tx.hash);
+
+// Wait for transaction confirmation and get the receipt
+const receipt = await tx.wait();
+console.log("✅ Transaction confirmed in block", receipt.blockNumber);
+
+// Parse the DocumentUploaded event to get the docId
+const event = receipt.logs
+.map(log => contract.interface.parseLog(log))
+.find(parsedLog => parsedLog?.name === "DocumentUploaded");
+
+if (event) {
+    const docId = ethers.toNumber(event.args[0]); // Use ethers.toNumber for safe conversion
+    console.log("📌 Document ID received:", docId);
+    //key.toString("hex")
+    saveAESKey(docId,key.toString("hex"));
+
+
+
+
+
+} else {
+    console.warn("⚠️ No DocumentUploaded event found in transaction");
+}
+
+
+
+
+
 
         res.status(200).json({
             message: "Upload successful and registered on-chain.",
