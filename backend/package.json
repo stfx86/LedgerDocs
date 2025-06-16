@@ -35,7 +35,8 @@
     "pinata": "^2.4.4",
     "pinata-web3": "^0.5.4",
     "sharp": "^0.34.2",
-    "undici": "^7.10.0"
+    "undici": "^7.10.0",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "jest": "^29.7.0",

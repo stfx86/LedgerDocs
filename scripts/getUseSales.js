@@ -5,7 +5,7 @@ async function main() {
     // const userAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"; // Replace with target wallet
 
     const LedgerDoc = await ethers.getContractAt("LedgerDoc", contractAddress);
-    const user = await LedgerDoc.getUserSales("2");
+    const user = await LedgerDoc.getUserSales("1");
 
     console.log(user);
 }

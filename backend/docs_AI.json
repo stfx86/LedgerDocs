@@ -1,0 +1,80 @@
+[
+  {
+    "title": "The Governance of Physical Artificial Intelligence",
+    "categories": [
+      "cs.AI"
+    ],
+    "price": 0,
+    "uploaderAddress": "0x0000000000000000000000000000000000000000",
+    "metadataCid": "QmWMvVCh2NG7pWsGcSuXtX7sYW3btK5kbuzw4vJBDxdjk7",
+    "encryptedCid": "QmPFiFL97UgZzzqAHAQ5JMzzsSfy2swHQ5Q2eNBrNLvjGj",
+    "descriptionCid": "QmSYfuM5MLLkm7khocuouCQHQ5LsGCi8Yv4UTmYyHS5zMh",
+    "previewCid": "QmXWyMcwHfu3PnkbAqpk5tQaeeLFtJV1rCmEcPUngcBUcW",
+    "thumbnailCid": "QmXWyMcwHfu3PnkbAqpk5tQaeeLFtJV1rCmEcPUngcBUcW",
+    "encryptionKeyHex": "3c23a0069c09a9380674ce71db7ba1fd72b1e4d65c391ba0a70c3878b7a67096",
+    "ivHex": "e807c6382106c2d3797ba3be"
+  },
+  {
+    "title": "Does an artificial intelligence perform market manipulation with its own\n  discretion? -- A genetic algorithm learns in an artificial market simulation",
+    "categories": [
+      "q-fin.TR",
+      "q-fin.CP",
+      "q-fin.RM"
+    ],
+    "price": 0,
+    "uploaderAddress": "0x0000000000000000000000000000000000000000",
+    "metadataCid": "QmRsAUyXvXNj36y8vrRcudqxNVqXWBwoi3KwF3zkF18fXe",
+    "encryptedCid": "Qmdo6HgHJX9LKrerPEJjiBfZXkDBgRww8NqCCvuwezM9UV",
+    "descriptionCid": "QmdJgxLD6jPDUYRBazowdfkDjHLSe5H5n4u6jwvmvkNDtn",
+    "previewCid": "QmQG8FCotJ8iGwwaZzq3yYf2wDuMubEhpFcSUJfiP8WYvj",
+    "thumbnailCid": "QmQG8FCotJ8iGwwaZzq3yYf2wDuMubEhpFcSUJfiP8WYvj",
+    "encryptionKeyHex": "4c3e66e0975e6a0ede6a7c921d2232e31c58c30e5546125bc51613f008dc8c12",
+    "ivHex": "80312c3fdfb7761cd10a89d5"
+  },
+  {
+    "title": "Impact of Artificial Intelligence on Economic Theory",
+    "categories": [
+      "q-fin.GN"
+    ],
+    "price": 0,
+    "uploaderAddress": "0x0000000000000000000000000000000000000000",
+    "metadataCid": "QmPh8NNYa6qjM5jvvHv5vqmkX6qTQRFynyHQYg7fUDSCTa",
+    "encryptedCid": "QmbG4fVTanvcqLD6vMCzLkbxT1XDMhb6snYetmiUyDFCAp",
+    "descriptionCid": "QmQRHHVSrGkz66q12KqjjVreZcM7z2auSUvcY5VRKjp77r",
+    "previewCid": "QmTc3S3syP9a4Nq35Vym64jTqDqiVj8whPyuzYWzWJCh1N",
+    "thumbnailCid": "QmTc3S3syP9a4Nq35Vym64jTqDqiVj8whPyuzYWzWJCh1N",
+    "encryptionKeyHex": "fcff6be2bc1c5303357039d1b7681c9b2ef3b6a36573539787a5d69d3b4cb8e6",
+    "ivHex": "0b4f709e3927d058b11f59e1"
+  },
+  {
+    "title": "The case for psychometric artificial general intelligence",
+    "categories": [
+      "cs.AI",
+      "I.2.0"
+    ],
+    "price": 0,
+    "uploaderAddress": "0x0000000000000000000000000000000000000000",
+    "metadataCid": "QmbXMh8eDqAVf77DiQaP55G8ziyoqzvpcPP32nK7M3fydT",
+    "encryptedCid": "QmdLrN33QZWJYKfphtjYKmYRzNvfc1Uic8fH3omQ59Jsx4",
+    "descriptionCid": "QmYbZD3meVzvisTxa34522Bq9iUretA89CghTXMxkbaaAB",
+    "previewCid": "QmaewJpZYcPoAsT7ZP7oA4yFehH1bAtvVz1xkP47JGKd9j",
+    "thumbnailCid": "QmaewJpZYcPoAsT7ZP7oA4yFehH1bAtvVz1xkP47JGKd9j",
+    "encryptionKeyHex": "caec3f76368d7bb58cd0fe78acb1e07f686e491ba835a791c8d2d92dfeb513cc",
+    "ivHex": "12f5097f7fc2d60191e6ed4e"
+  },
+  {
+    "title": "Artificial Intelligence in Humans",
+    "categories": [
+      "cs.AI"
+    ],
+    "price": 0,
+    "uploaderAddress": "0x0000000000000000000000000000000000000000",
+    "metadataCid": "QmRZmJfvEa18qENgb4srJsSQLqAAqtip5xVKyjr8eiedL5",
+    "encryptedCid": "QmXNtKx2rAKCiBfLa9ecS7iJXVZ64Kkgk1XANVKai7Ys7L",
+    "descriptionCid": "QmSMm5kiTRXmRWWMnphqRRGBUQYLRidFGbcteTQbNRen4p",
+    "previewCid": "QmeNicCuhCbKPnM3U4CziwiFfRRg4FFPDM2m1TnUPfT7N4",
+    "thumbnailCid": "QmeNicCuhCbKPnM3U4CziwiFfRRg4FFPDM2m1TnUPfT7N4",
+    "encryptionKeyHex": "a6187df178caba8939bac5337934a3469e66318888e59f18c46890820357b997",
+    "ivHex": "b2aea03300d313ee1d135bf1"
+  }
+]

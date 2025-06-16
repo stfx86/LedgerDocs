@@ -1,3 +1,6 @@
+AIzaSyAunk5f4G4eobIbLKrDSDsTnCE5bIofcgE
+https://ipfs.github.io/public-gateway-checker/
+
 43567697089yj89nu
 43567697089yj89nu
 43567697089yj89nu

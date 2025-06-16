@@ -48,9 +48,11 @@ exports.handleUpload = async(req, res) => {
             licenseType,
             blurLevel,
             categories: categoriesRaw,
+            firstPagesCount
         } = req.body;
 
         console.log("📋 Received fields:", {
+            firstPagesCount,
             title,
             description,
             price,
@@ -88,6 +90,7 @@ exports.handleUpload = async(req, res) => {
             patchHeight: 25,
             blurPercentage: parseInt(blurLevel) / 100,
             blurStrength: 15,
+            unblurredPages :firstPagesCount
         });
         console.log("parseInt(blurLevel) / 100,::",parseInt(blurLevel) / 100);
         previewCid = jsonCID

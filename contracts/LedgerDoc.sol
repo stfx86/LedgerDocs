@@ -16,6 +16,7 @@ contract LedgerDoc {
     }
 
     struct Document {
+        
         uint256 id;
         string metadataCid;
         string encryptedCid;
@@ -89,6 +90,7 @@ contract LedgerDoc {
         string previewCid,
         string thumbnailCid,
         string uploaderName
+
     );
     event DocumentCategoryTagged(uint256 indexed documentId, string category);
     event AuthorizationUpdated(address indexed uploader, bool status);
@@ -206,8 +208,7 @@ contract LedgerDoc {
         uint256 sellerAmount = msg.value - ownerCut;
 
         payable(users[uploaderId].wallet).transfer(sellerAmount);
-        doc.downloads += 1;
-
+         doc.downloads += 1;
         emit DocumentPurchased(docId, buyerId, block.timestamp);
     }
 
