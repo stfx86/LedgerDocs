@@ -5,6 +5,7 @@ const helmet = require('helmet');
 require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const decryptKeyRoutes = require('./routes/decryptKeyRoutes');
 
 const app = express();
 
@@ -18,6 +19,9 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 // Routes
 app.use('/', authRoutes);
 app.use('/', uploadRoutes);
+
+app.use('/', decryptKeyRoutes);
+
 
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");

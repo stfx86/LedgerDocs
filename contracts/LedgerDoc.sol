@@ -16,6 +16,7 @@ contract LedgerDoc {
     }
 
     struct Document {
+        
         uint256 id;
         string metadataCid;
         string encryptedCid;
@@ -206,8 +207,7 @@ contract LedgerDoc {
         uint256 sellerAmount = msg.value - ownerCut;
 
         payable(users[uploaderId].wallet).transfer(sellerAmount);
-        doc.downloads += 1;
-
+         doc.downloads += 1;
         emit DocumentPurchased(docId, buyerId, block.timestamp);
     }
 
