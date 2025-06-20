@@ -2,8 +2,14 @@
 pragma solidity ^0.8.28;
 
 contract LedgerDoc {
-    enum UserStatus { Active, Suspended }
-    enum DocumentStatus { Active, Removed }
+    enum UserStatus {
+        Active,
+        Suspended
+    }
+    enum DocumentStatus {
+        Active,
+        Removed
+    }
 
     struct User {
         uint256 id;
@@ -16,7 +22,6 @@ contract LedgerDoc {
     }
 
     struct Document {
-        
         uint256 id;
         string metadataCid;
         string encryptedCid;
@@ -74,15 +79,24 @@ contract LedgerDoc {
     mapping(address => bool) public isAuthorized;
 
     mapping(uint256 => Purchase[]) public userPurchases;
-    mapping(uint256 => Sale[]) public userSales;//sales (current uploaded document that ment to get baugt  from the buyer )not sales history!!
+    mapping(uint256 => Sale[]) public userSales; //sales (current uploaded document that ment to get baugt  from the buyer )not sales history!!
+    // Mapping for encrypted AES key CID on IPFS
+    mapping(uint256 => string) public decryptionKeyCIDs;
 
-    event UserRegistered(uint256 indexed userId, address indexed wallet, string  name, string profileCid, string profileImageCid, uint256 joinedAt);
+    event UserRegistered(
+        uint256 indexed userId,
+        address indexed wallet,
+        string name,
+        string profileCid,
+        string profileImageCid,
+        uint256 joinedAt
+    );
     event DocumentUploaded(
         uint256 indexed documentId,
         uint256 indexed uploaderId,
         string title,
         string[] categories,
-        uint256 indexed  price,
+        uint256 indexed price,
         uint256 uploadTime,
         string metadataCid,
         string encryptedCid,
@@ -90,13 +104,16 @@ contract LedgerDoc {
         string previewCid,
         string thumbnailCid,
         string uploaderName
-
     );
     event DocumentCategoryTagged(uint256 indexed documentId, string category);
     event AuthorizationUpdated(address indexed uploader, bool status);
     event DocumentRemoved(uint256 indexed documentId);
     event UserStatusUpdated(uint256 indexed userId, UserStatus status);
-    event DocumentPurchased(uint256 indexed documentId, uint256 indexed buyerId, uint256 timestamp);
+    event DocumentPurchased(
+        uint256 indexed documentId,
+        uint256 indexed buyerId,
+        uint256 timestamp
+    );
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not owner");
@@ -104,7 +121,10 @@ contract LedgerDoc {
     }
 
     modifier onlyAuthorized() {
-        require(isAuthorized[msg.sender] || msg.sender == owner, "Not authorized");
+        require(
+            isAuthorized[msg.sender] || msg.sender == owner,
+            "Not authorized"
+        );
         _;
     }
 
@@ -141,18 +161,34 @@ contract LedgerDoc {
 
         addressToUserId[input.wallet] = id;
 
-        emit UserRegistered(id, input.wallet, input.name, input.profileCid, input.profileImageCid, block.timestamp);
+        emit UserRegistered(
+            id,
+            input.wallet,
+            input.name,
+            input.profileCid,
+            input.profileImageCid,
+            block.timestamp
+        );
     }
 
-    function setUserStatus(uint256 userId, UserStatus status) external onlyAuthorized {
+    function setUserStatus(
+        uint256 userId,
+        UserStatus status
+    ) external onlyAuthorized {
         require(users[userId].id != 0, "Invalid user");
         users[userId].status = status;
         emit UserStatusUpdated(userId, status);
     }
 
-    function uploadDocument(DocumentInput calldata input) external onlyAuthorized onlyActiveUser(input.uploaderAddress)
-             returns (uint256)  {
-//         require(users[input.uploaderId].id != 0, "Invalid uploader");
+    function uploadDocument(
+        DocumentInput calldata input
+    )
+        external
+        onlyAuthorized
+        onlyActiveUser(input.uploaderAddress)
+        returns (uint256)
+    {
+        //         require(users[input.uploaderId].id != 0, "Invalid uploader");
         uint256 uploaderId = addressToUserId[input.uploaderAddress];
         uint256 docId = nextDocumentId++;
 
@@ -173,27 +209,46 @@ contract LedgerDoc {
         doc.uploadTime = block.timestamp;
         doc.status = DocumentStatus.Active;
 
-        userSales[uploaderId].push(Sale({ documentId: docId, timestamp: block.timestamp }));
+        userSales[uploaderId].push(
+            Sale({documentId: docId, timestamp: block.timestamp})
+        );
 
-        emit DocumentUploaded(docId, uploaderId, input.title, input.categories, input.price, doc.uploadTime, input.metadataCid, input.encryptedCid, input.descriptionCid, input.previewCid, input.thumbnailCid, users[uploaderId].name);
+        emit DocumentUploaded(
+            docId,
+            uploaderId,
+            input.title,
+            input.categories,
+            input.price,
+            doc.uploadTime,
+            input.metadataCid,
+            input.encryptedCid,
+            input.descriptionCid,
+            input.previewCid,
+            input.thumbnailCid,
+            users[uploaderId].name
+        );
 
         for (uint i = 0; i < input.categories.length; i++) {
             emit DocumentCategoryTagged(docId, input.categories[i]);
         }
         return docId;
-
     }
 
     function removeDocument(uint256 docId) external {
         Document storage doc = documents[docId];
         require(doc.id != 0, "Not found");
         uint256 uploaderId = doc.uploaderId;
-        require(msg.sender == users[uploaderId].wallet || isAuthorized[msg.sender], "Unauthorized");
+        require(
+            msg.sender == users[uploaderId].wallet || isAuthorized[msg.sender],
+            "Unauthorized"
+        );
         doc.status = DocumentStatus.Removed;
         emit DocumentRemoved(docId);
     }
 
-    function purchaseDocument(uint256 docId) external payable onlyActiveUser(msg.sender) {
+    function purchaseDocument(
+        uint256 docId
+    ) external payable onlyActiveUser(msg.sender) {
         Document storage doc = documents[docId];
         require(doc.status == DocumentStatus.Active, "Document inactive");
         require(msg.value >= doc.price, "Insufficient payment");
@@ -201,14 +256,22 @@ contract LedgerDoc {
         uint256 buyerId = addressToUserId[msg.sender];
         uint256 uploaderId = doc.uploaderId;
 
-        userPurchases[buyerId].push(Purchase({ documentId: docId, timestamp: block.timestamp }));
-//         userSales[uploaderId].push(Sale({ documentId: docId, timestamp: block.timestamp }));
+        // Check if user already purchased this document
+        Purchase[] storage purchases = userPurchases[buyerId];
+        for (uint i = 0; i < purchases.length; i++) {
+            require(purchases[i].documentId != docId, "Already purchased");
+        }
+
+        userPurchases[buyerId].push(
+            Purchase({documentId: docId, timestamp: block.timestamp})
+        );
+        //         userSales[uploaderId].push(Sale({ documentId: docId, timestamp: block.timestamp }));
 
         uint256 ownerCut = (msg.value * 10) / 100;
         uint256 sellerAmount = msg.value - ownerCut;
 
         payable(users[uploaderId].wallet).transfer(sellerAmount);
-         doc.downloads += 1;
+        doc.downloads += 1;
         emit DocumentPurchased(docId, buyerId, block.timestamp);
     }
 
@@ -217,23 +280,45 @@ contract LedgerDoc {
         return users[userId];
     }
 
-    function getUserByAddress(address wallet) external view returns (User memory) {
+    function getUserByAddress(
+        address wallet
+    ) external view returns (User memory) {
         uint256 id = addressToUserId[wallet];
         require(id != 0, "User not found");
         return users[id];
     }
 
-    function getDocument(uint256 docId) external view returns (Document memory) {
+    function getDocument(
+        uint256 docId
+    ) external view returns (Document memory) {
         return documents[docId];
     }
 
-    function getUserPurchases(uint256 userId) external view returns (Purchase[] memory) {
+    function getUserPurchases(
+        uint256 userId
+    ) external view returns (Purchase[] memory) {
         return userPurchases[userId];
     }
 
-    function getUserSales(uint256 userId) external view returns (Sale[] memory) {
+    function getUserSales(
+        uint256 userId
+    ) external view returns (Sale[] memory) {
         return userSales[userId];
     }
+
+    function setDecryptionKeyCID( uint256 docId, string memory cid ) external onlyAuthorized {
+    require(bytes(documents[docId].encryptedCid).length > 0, "Document not found");
+    require(bytes(decryptionKeyCIDs[docId]).length == 0, "CID already set");
+    decryptionKeyCIDs[docId] = cid;
+}
+
+
+// (Optional) Explicit getter
+function getDecryptionKeyCID(
+    uint256 docId
+) external view returns (string memory) {
+    return decryptionKeyCIDs[docId];
+}
 
     function tst() public pure returns (uint256) {
         return 2222;

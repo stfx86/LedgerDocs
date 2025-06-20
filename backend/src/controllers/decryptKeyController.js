@@ -1,6 +1,6 @@
 const { ethers } = require('ethers');
 const { abi } = require('../../../artifacts/contracts/LedgerDoc.sol/LedgerDoc.json');
-const { getAESKey }= require('../utils/getAESKey');
+const { getAESKey }= require('../utils/getAESKey2');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const RPC_URL = process.env.PROVIDER_URL;
