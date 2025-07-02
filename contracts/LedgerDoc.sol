@@ -135,6 +135,16 @@ contract LedgerDoc {
         _;
     }
 
+    // Modifier to check if user is registered and active
+    modifier onlyRegisteredActiveUser(address userAddr) {
+        uint256 uid = addressToUserId[userAddr];
+        require(uid != 0, "User not registered");
+        require(users[uid].status == UserStatus.Active, "User suspended");
+        _;
+    }
+
+
+
     constructor() {
         owner = msg.sender;
         isAuthorized[msg.sender] = true;
@@ -319,6 +329,107 @@ function getDecryptionKeyCID(
 ) external view returns (string memory) {
     return decryptionKeyCIDs[docId];
 }
+
+/*
+
+// Update user name
+function updateUserName(string memory newName) external {
+    uint256 userId = addressToUserId[msg.sender];
+    require(userId != 0, "User not found");
+
+    // Allow user (if active), authorized accounts, or owner
+    if (msg.sender == users[userId].wallet) {
+        require(users[userId].status == UserStatus.Active, "User suspended");
+    } else {
+        require(isAuthorized[msg.sender] || msg.sender == owner, "Not authorized");
+    }
+
+    users[userId].name = newName;
+}
+
+// Update profileCid (contains email and about me JSON)
+function updateProfileCid(string memory profileCid) external {
+    uint256 userId = addressToUserId[msg.sender];
+    require(userId != 0, "User not found");
+
+    // Allow user (if active), authorized accounts, or owner
+    if (msg.sender == users[userId].wallet) {
+        require(users[userId].status == UserStatus.Active, "User suspended");
+    } else {
+        require(isAuthorized[msg.sender] || msg.sender == owner, "Not authorized");
+    }
+
+    users[userId].profileCid = profileCid;
+}
+
+// Update profileImageCid (contains profile image)
+function updateProfileImageCid(string memory profileImageCid) external {
+    uint256 userId = addressToUserId[msg.sender];
+    require(userId != 0, "User not found");
+
+    // Allow user (if active), authorized accounts, or owner
+    if (msg.sender == users[userId].wallet) {
+        require(users[userId].status == UserStatus.Active, "User suspended");
+    } else {
+        require(isAuthorized[msg.sender] || msg.sender == owner, "Not authorized");
+    }
+
+    users[userId].profileImageCid = profileImageCid;
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+// Update user name (can update self or admin/authorized can update anyone)
+function updateUserName(address userAddr, string memory newName) external onlyRegisteredActiveUser(userAddr) {
+    uint256 userId = addressToUserId[userAddr];
+    require(userId != 0, "User not found");
+
+    if (msg.sender != userAddr) {
+        // caller is NOT the user, so must be authorized or owner
+        require(isAuthorized[msg.sender] || msg.sender == owner, "Not authorized");
+    } else {
+        // caller is the user, check if active is already done by modifier
+    }
+
+    users[userId].name = newName;
+}
+
+// Similarly for profileCid
+function updateProfileCid(address userAddr, string memory profileCid) external onlyRegisteredActiveUser(userAddr) {
+    uint256 userId = addressToUserId[userAddr];
+    require(userId != 0, "User not found");
+
+    if (msg.sender != userAddr) {
+        require(isAuthorized[msg.sender] || msg.sender == owner, "Not authorized");
+    }
+
+    users[userId].profileCid = profileCid;
+}
+
+// Similarly for profileImageCid
+function updateProfileImageCid(address userAddr, string memory profileImageCid) external onlyRegisteredActiveUser(userAddr) {
+    uint256 userId = addressToUserId[userAddr];
+    require(userId != 0, "User not found");
+
+    if (msg.sender != userAddr) {
+        require(isAuthorized[msg.sender] || msg.sender == owner, "Not authorized");
+    }
+
+    users[userId].profileImageCid = profileImageCid;
+}
+
+
+
+
 
     function tst() public pure returns (uint256) {
         return 2222;

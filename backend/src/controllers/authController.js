@@ -8,7 +8,8 @@ const ledgerDocABI = require("./../../../artifacts/contracts/LedgerDoc.sol/Ledge
 
 
 // Environment variables (use dotenv in production)
-const CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
+const LedgerDocAddress = process.env.CONTRACT_ADDRESS;
+const CONTRACT_ADDRESS = LedgerDocAddress;
 const PROVIDER_URL = process.env.PROVIDER_URL ;
 const ADMIN_PRIVATE_KEY = process.env.ADMIN_PRIVATE_KEY || 'your-admin-private-key'; // Store securely
 const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret'; // Store securely

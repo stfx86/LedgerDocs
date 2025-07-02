@@ -1,3 +1,10 @@
+ 0.61789 ETH
+
+ HTTP 429  ==  "Too Many Requests"
+
+ 18,QmWNPYCuu1Y1q6PCimvAhPLJLFUZPtmavEozZMTdtBZRvL,QmVizffZGCFMeRczXGc3uGEj7ieNSP1ULoj1jjRmsv7UF2,QmS5bi35EQ9RoKJn96ccUo7me1FeCvootrsQX7JFNMcGhs,QmeRrzpDDqXXWAbNsvquUsSHL1TyAd1uFvgBYKRBCiobxS,,A Sample-wise Pre-training Data Mixing Strategey by.pdf,education,design,finance,templates,legal,code,marketing,research,10000000000000000,0,0,0,3,1751154912,0
+
+
 https://www.canva.com/design/DAGq6eLCw58/g2oFtpDW5yCegILJP0-egA/edit?locale=fr-FR&ui=eyJBIjp7IkUiOnsiQSI6dHJ1ZX19fQ
 
 

@@ -1,6 +1,6 @@
 const { ethers } = require('ethers');
 const { abi } = require('../../../artifacts/contracts/LedgerDoc.sol/LedgerDoc.json');
-const { getAESKey }= require('../utils/getAESKey2');
+const { getAESKey } = require('../utils/getAESKey2');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const RPC_URL = process.env.PROVIDER_URL;
@@ -25,9 +25,15 @@ exports.getDecryptionKey = async (req, res) => {
 
     // 1. Fetch document
     const document = await contract.getDocument(documentId);
-    if (!document || Number(document.status) !== 0) {
+
+    // if (!document || Number(document.status) !== 0) {
+    //   return res.status(404).json({ error: 'Document not found or removed.' });
+    // }
+
+    if (!document ) {
       return res.status(404).json({ error: 'Document not found or removed.' });
     }
+
 
     // 2. Get userId
     const userInfo = await contract.getUserByAddress(userAddress);

@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const decryptKeyRoutes = require('./routes/decryptKeyRoutes');
 const chatRoutes = require("./routes/chatRoutes")
+const update_userRoutes = require("./routes/update_userRoutes")
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/', uploadRoutes);
 
 app.use('/', decryptKeyRoutes);
 app.use("/", chatRoutes);
+app.use("/",update_userRoutes);
 
 
 app.listen(3000, () => {
